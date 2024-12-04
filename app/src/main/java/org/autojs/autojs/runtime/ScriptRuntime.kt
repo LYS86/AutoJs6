@@ -16,6 +16,7 @@ import org.autojs.autojs.core.console.GlobalConsole
 import org.autojs.autojs.core.image.capture.ScreenCaptureRequester
 import org.autojs.autojs.core.looper.Loopers
 import org.autojs.autojs.core.pref.Pref
+import org.autojs.autojs.core.yolo.Detection
 import org.autojs.autojs.engine.ScriptEngineService
 import org.autojs.autojs.extension.ScriptableExtensions.defineProp
 import org.autojs.autojs.extension.ScriptableExtensions.deleteProp
@@ -232,6 +233,9 @@ class ScriptRuntime private constructor(builder: Builder) {
 
     @ScriptVariable
     val info: ActivityInfoProvider
+
+    @ScriptVariable
+    var yolo = Detection()
 
     @JvmField
     @ScriptVariable
@@ -473,6 +477,8 @@ class ScriptRuntime private constructor(builder: Builder) {
     }
 
     fun initEpilogue() {
+        topLevelScope.defineProp("yolo", yolo)
+
         // @Hint by Stardust (https://github.com/hyb1996) on Feb 27, 2018
         //  ! 重定向 require 以支持相对路径和 npm 模块.
         //  ! en-US (translated by SuperMonster003 on Jul 27, 2024):
@@ -596,6 +602,7 @@ class ScriptRuntime private constructor(builder: Builder) {
         ignoresException({ timers.recycle() })
         ignoresException({ ui.recycle() })
         ignoresException({ closeableManager.recycleAll() })
+        ignoresException({yolo.close()})
     }
 
     fun setScreenMetrics(width: Int, height: Int) {

@@ -195,6 +195,14 @@ dependencies /* Unclassified */ {
     implementation("com.github.getActivity:EasyWindow:10.3")
 }
 
+dependencies /* LiteRT */ {
+    implementation("com.google.ai.edge.litert:litert:1.0.1")
+    implementation("com.google.ai.edge.litert:litert-gpu:1.0.1")
+    implementation("com.google.ai.edge.litert:litert-metadata:1.0.1")
+    implementation("com.google.ai.edge.litert:litert-support:1.0.1")
+    implementation("com.google.ai.edge.litert:litert-gpu-api:1.0.1")
+}
+
 dependencies /* MIME */ {
     // @Hint by SuperMonster003 on Oct 5, 2023.
     //  ! Only for Android API 26 (8.0) [O] and above.
