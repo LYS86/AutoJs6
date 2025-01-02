@@ -1,5 +1,39 @@
 {
   "$data": {
+    "v6.6.1": {
+      "released_date": "2025/01/01",
+      "feature": [
+        "Module Pinyin pour la conversion du pinyin chinois (Consultez la documentation du projet > [Pinyin chinois](https://docs.autojs6.com/#/pinyin))",
+        "Module Pinyin4j pour la conversion du pinyin chinois (Consultez la documentation du projet > [Pinyin chinois](https://docs.autojs6.com/#/pinyin4j))",
+        "Méthodes UiObject#isSimilar et UiObjectCollection#isSimilar pour déterminer si une commande ou une collection de commandes est similaire",
+        "Méthode globale \"currentComponent\", utilisée pour obtenir le nom du composant actif actuel"
+      ],
+      "fix": [
+        "Problème empêchant la compilation correcte du projet dans certains environnements suite à un retour à une ancienne version",
+        "Exception \"valeur non primitive\" pouvant survenir lors de l'appel à des méthodes inexistantes",
+        "Problème empêchant l'ajout correct de raccourcis de script sur certains appareils (correction provisoire) _[`issue #221`](http://issues.autojs6.com/221)_",
+        "Erreur de restriction de type de paramètre dans les méthodes automator.click/longClick _[`issue #275`](http://issues.autojs6.com/275)_",
+        "Problème avec les sélecteurs ne prenant pas en charge les paramètres de type ConsString _[`issue #277`](http://issues.autojs6.com/277)_",
+        "Problème d'absence des méthodes et propriétés propres aux instances UiObjectCollection"
+      ],
+      "improvement": [
+        "La page de packaging prend en charge la configuration des signatures, la gestion des clés et la configuration des autorisations (par [luckyloogn]()) _[`pr #286`]()_",
+        "Amélioration de la précision de la reconnaissance du nom du package actuel et de l'activité en cours de la fenêtre flottante (Priorité : Shizuku > Root > A11Y)",
+        "Amélioration de la précision de la reconnaissance de currentPackage et currentActivity (Priorité : Shizuku > Root > A11Y)",
+        "Restauration de la possibilité de sélectionner le contenu texte d'une entrée individuelle dans la fenêtre de journal via un double-clic ou un appui long _[`issue #280`](http://issues.autojs6.com/280)_",
+        "Récupérer autant d'informations critiques que possible pour les projets de script en cas de corruption du fichier project.json",
+        "Convertir automatiquement le chinois simplifié en pinyin (y compris les caractères à tons multiples) pour les suffixes de noms de paquet générés lors de l'empaquetage de fichiers uniques",
+        "Soutien des arguments négatifs dans les méthodes UiSelector#findOnce et UiSelector#find",
+        "Amélioration de l'adaptabilité des méthodes app.startActivity/startDualActivity",
+        "Prise en charge des formes abrégées supplémentaires pour les préfixes de noms de paquet dans les sélecteurs liés aux éléments de l'interface utilisateur et aux className (par exemple RecyclerView, Snackbar, etc.)",
+        "Synchroniser le code en amont le plus récent du moteur Rhino et l'adapter au projet existant"
+      ],
+      "dependency": [
+        "Ajout de Pinyin4j version 2.5.0",
+        "Ajout de Jieba Analysis version 1.0.3-SNAPSHOT (modifiée)",
+        "Mise à niveau de la version de Gradle de 8.11.1 à 8.12"
+      ]
+    },
     "v6.6.0": {
       "released_date": "2024/12/02",
       "released_hint": "Réécriture du module intégré, mise à jour avec prudence",
@@ -565,7 +599,7 @@
         "Les méthodes associées à l'utilisation d'applications dans le module app prennent en charge des paramètres de type App et des paramètres d'alias d'application.",
         "Les méthodes associées au rappel asynchrone dans le module dialogs prennent en charge l'omission des paramètres pré-remplis.",
         "app.startActivity et autres prennent en charge des paramètres d'option d'URL (voir code d'exemple > Applications > Intention).",
-        "Le module device renvoie null au lieu de lancer une exception lorsque l'obtention de l’IMEI ou du numéro de série matériel échoue.",
+        "Le module device renvoie null au lieu de lancer une exception lorsque l'obtention de l'IMEI ou du numéro de série matériel échoue.",
         "Augmenter la luminosité du texte dans le journal de la fenêtre flottante affichée par console.show pour améliorer la lisibilité du contenu.",
         "ImageWrapper#saveTo prend en charge la sauvegarde de fichiers image dans des chemins relatifs.",
         "Reconcevoir l'objet global colors et inclure la prise en charge des modes de couleur HSV / HSL (consultez la documentation du projet > [Couleurs](https://docs.autojs6.com/#/color))."
@@ -616,7 +650,7 @@
       ],
       "dependency": [
         "Ajout de la version 1.306 de github-api",
-        "Remplacement de la version 1.0.0 de retrofit2-rxjava2-adapter par la version 2.9.0 d’adapter-rxjava2"
+        "Remplacement de la version 1.0.0 de retrofit2-rxjava2-adapter par la version 2.9.0 d'adapter-rxjava2"
       ]
     },
     "v6.1.0": {
@@ -650,14 +684,14 @@
         "Problème de non-exécution des Thenable retournées par Promise.resolve() à la fin du script",
         "Erreurs potentielles dans les noms des packages ou classes (boardcast -> broadcast / auojs -> autojs)",
         "Problème potentiel de crash de l'application lors de l'utilisation de images.requestScreenCapture() sous les versions Android ≥ 31",
-        "Problème potentiel de crash de l'application lors de demandes simultanées d’images.requestScreenCapture() par plusieurs scripts",
+        "Problème potentiel de crash de l'application lors de demandes simultanées d'images.requestScreenCapture() par plusieurs scripts",
         "Problème de gel potentiel lors de l'appel à new RootAutomator()"
       ],
       "improvement": [
         "RootAutomator ne peut pas être instancié sans permissions Root",
         "Refonte de la page \"À propos de l'application et du développeur\"",
         "Refactorisation de tous les modules JavaScript intégrés",
-        "Refactorisation de tous les scripts Gradle de la construction et ajout d’un script de configuration commun (config.gradle)",
+        "Refactorisation de tous les scripts Gradle de la construction et ajout d'un script de configuration commun (config.gradle)",
         "L'outil de construction Gradle prend en charge la gestion automatique des numéros de version et le nommage automatique des fichiers de construction",
         "L'outil de construction Gradle ajoute une tâche pour joindre un résumé CRC32 aux fichiers de construction (appendDigestToReleasedFiles)",
         "L'écriture des exceptions dans le résultat de retour au lieu de lancer directement des exceptions lors d'un appel de shell() (aucune nécessité de try/catch)",
@@ -711,7 +745,7 @@
         "Ajout de la détection de l'état et des messages de résultat pour l'affichage de la position du pointeur",
         "Support des systèmes d'exploitation en 64 bits (référence à [TonyJiangWJ](https://github.com/TonyJiangWJ))",
         "Application immédiate des paramètres de transparence des boutons flottants lors de l'initialisation (sans nécessiter un clic supplémentaire pour appliquer la transparence)",
-        "Ajout de la détection des fichiers de code d'exemple lors de la réinitialisation du contenu des fichiers et fourniture d’un message de résultat",
+        "Ajout de la détection des fichiers de code d'exemple lors de la réinitialisation du contenu des fichiers et fourniture d'un message de résultat",
         "Migration de l'adresse de téléchargement des plugins packagés de GitHub vers JsDelivr"
       ],
       "dependency": [

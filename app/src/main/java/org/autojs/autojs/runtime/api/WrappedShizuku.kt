@@ -31,7 +31,10 @@ object WrappedShizuku {
 
     private val TAG: String = WrappedShizuku::class.java.simpleName
 
-    private val mRequestCode = "shizuku-request-code".hashCode()
+    private val mRequestCode = when {
+        BuildConfig.isInrt -> "shizuku-request-code-inrt".hashCode()
+        else -> "shizuku-request-code".hashCode()
+    }
     private var mHasBinder = false
 
     private val mUserServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -50,10 +53,8 @@ object WrappedShizuku {
     }
 
     private val mUserServiceArgs = Shizuku.UserServiceArgs(ComponentName(BuildConfig.APPLICATION_ID, UserService::class.java.name))
+        .processNameSuffix("shizuku-service-for-${BuildConfig.APPLICATION_ID.substringAfterLast(".")}")
         .daemon(false)
-        .processNameSuffix("service-for-${BuildConfig.APPLICATION_ID.split(".").lastOrNull() ?: BuildConfig.APPLICATION_ID}")
-        .debuggable(BuildConfig.DEBUG)
-        .version(BuildConfig.VERSION_CODE)
 
     private val mBinderReceivedListener = Shizuku.OnBinderReceivedListener {
         if (Shizuku.isPreV11()) {
@@ -116,6 +117,7 @@ object WrappedShizuku {
         false.also { if (e.message?.contains(Regex("binder .+n[o']t been received", RegexOption.IGNORE_CASE)) == false) e.printStackTrace() }
     }
 
+    @JvmStatic
     @ScriptInterface
     fun isOperational(): Boolean = isRunning() && hasPermission()
 

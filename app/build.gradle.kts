@@ -98,7 +98,6 @@ dependencies /* Unclassified */ {
     implementation("net.lingala.zip4j:zip4j:2.11.5")
 
     // Log4j
-    implementation("de.mindpipe.android:android-logging-log4j:1.0.3")
     // FIXME by SuperMonster003 on Aug 14, 2024.
     //  ! Vulnerable dependency (5 vulnerabilities) for log4j (version 1):
     //  ! - CVE-2022-23307, Score: 8.8
@@ -108,7 +107,9 @@ dependencies /* Unclassified */ {
     //  ! - CVE-2019-17571, Score: 9.8
     //  ! However, log4j version 2 which requires Android API Level not lower than 26
     //  ! is not compatible with current project with min API Level 24.
+    //  !
     //  ! zh-CN:
+    //  !
     //  ! 依赖库 log4j (第一版本) 是易受攻击的 (含 5 项漏洞):
     //  ! - CVE-2022-23307, 评分: 8.8
     //  ! - CVE-2022-23305, 评分: 9.8
@@ -118,6 +119,9 @@ dependencies /* Unclassified */ {
     //  ! 但 log4j 第二版本要求安卓 API 级别不低于 26,
     //  ! 与最低 API 级别为 24 的当前项目无法兼容.
     implementation("log4j:log4j:1.2.17")
+
+    // Android Logging Log4j
+    implementation("de.mindpipe.android:android-logging-log4j:1.0.3")
 
     // Preference
     implementation("androidx.preference:preference-ktx:1.2.1")
@@ -170,9 +174,6 @@ dependencies /* Unclassified */ {
     // Rhino
     implementation(files("$rootDir/libs/org.mozilla.rhino-1.7.16-snapshot.jar"))
 
-    // Tiny Sign
-    implementation(files("$rootDir/libs/tiny-sign-0.9.jar"))
-
     // Tasker Plugin
     implementation(project(":libs:android-spackle-9.0.0"))
     implementation(project(":libs:android-assertion-9.0.0"))
@@ -193,6 +194,24 @@ dependencies /* Unclassified */ {
     // Toaster
     implementation("com.github.getActivity:Toaster:12.6")
     implementation("com.github.getActivity:EasyWindow:10.3")
+
+    // Pinyin4j
+    implementation("com.belerweb:pinyin4j:2.5.0")
+
+    // Jieba Analysis (zh-CN: 结巴分词)
+    // implementation("com.huaban:jieba-analysis:1.0.2")
+    implementation(project(":jieba-analysis"))
+
+    // Tiny Sign
+    implementation(files("$rootDir/libs/tiny-sign-0.9.jar"))
+
+    // ApkSigner
+    implementation("com.github.TimScriptov:apksigner:1.2.0")
+
+    // Room
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
 }
 
 dependencies /* LiteRT */ {
@@ -741,6 +760,12 @@ extra {
     versions.handleIfNeeded(project, flavorNameApp, listOf(buildTypeDebug, buildTypeRelease))
 }
 
+gradle.beforeProject {
+    extensions.extraProperties["compileSdk"] = versions.sdkVersionCompile
+    extensions.extraProperties["minSdk"] = versions.sdkVersionMin
+    extensions.extraProperties["targetSdk"] = versions.sdkVersionTarget
+}
+
 class Sign(filePath: String) {
 
     var isValid = false
@@ -813,19 +838,23 @@ class Versions(filePath: String) {
             javaVersionInfoSuffix += " [fallback]"
         }
 
-        val platformVersion = gradle.extra["platformVersion"] as String
-        val platformAbbr = gradle.extra["platformAbbr"] as String
-
-        javaVersionCeilMap[platformAbbr]?.get(platformVersion)?.let { ceil: Int ->
-            if (niceVersionInt > ceil) {
-                niceVersionInt = ceil
-                javaVersionInfoSuffix += " [coerced]"
+        if (gradle.extra.has("gradleVersionToCoerceJavaVersion")) {
+            (gradle.extra["gradleVersionToCoerceJavaVersion"] as? String)?.let {
+                val maxGradleVersion = getMaxSupportedJavaVersion(it)
+                if (niceVersionInt > maxGradleVersion) {
+                    niceVersionInt = maxGradleVersion
+                    javaVersionInfoSuffix += " [coerced]"
+                }
             }
         }
 
         if (niceVersionInt > currentVersionInt) {
             niceVersionInt = currentVersionInt
             javaVersionInfoSuffix += " [consistent]"
+        }
+
+        gradle.beforeProject {
+            extensions.extraProperties["javaVersion"] = niceVersionInt
         }
 
         JavaVersion.toVersion(niceVersionInt)
@@ -838,23 +867,6 @@ class Versions(filePath: String) {
         get() = properties["BUILD_TIME"]?.let {
             Date().time - (it as String).toLong() > minBuildTimeGap
         } == true
-
-    private fun appendToTask(project: Project, flavorName: String, buildType: String) {
-        project.tasks.getByName(Utils.getAssembleTaskName(flavorName, buildType)).doLast {
-            updateProperties()
-            println()
-            showInfo()
-        }
-    }
-
-    private fun updateProperties() {
-        if (isBuildGapEnough) {
-            properties["VERSION_BUILD"] = "${appVersionCode + 1}"
-            isBuildNumberAutoIncremented = true
-        }
-        properties["BUILD_TIME"] = "${Date().time}"
-        properties.store(file.writer(), null)
-    }
 
     init {
         if (currentVersionInt < javaVersionMinSuggested) {
@@ -907,6 +919,67 @@ class Versions(filePath: String) {
                 return showInfo()
             }
         })
+    }
+
+    private fun appendToTask(project: Project, flavorName: String, buildType: String) {
+        project.tasks.getByName(Utils.getAssembleTaskName(flavorName, buildType)).doLast {
+            updateProperties()
+            println()
+            showInfo()
+        }
+    }
+
+    private fun updateProperties() {
+        if (isBuildGapEnough) {
+            properties["VERSION_BUILD"] = "${appVersionCode + 1}"
+            isBuildNumberAutoIncremented = true
+        }
+        properties["BUILD_TIME"] = "${Date().time}"
+        properties.store(file.writer(), null)
+    }
+
+    private fun getMaxSupportedJavaVersion(gradleVersion: String): Int {
+
+        /* https://docs.gradle.org/current/userguide/compatibility.html . */
+        val presetVersionMap = listOf(
+            17 to "7.3",
+            18 to "7.5",
+            19 to "7.6",
+            20 to "8.3",
+            21 to "8.5",
+            22 to "8.8",
+            23 to "8.10",
+        )
+
+        fun parseVersion(version: String) = version.split(Regex("[.-]")).map { it.toIntOrNull() ?: 0 }
+
+        val inputGradleVersionInts = parseVersion(gradleVersion)
+
+        var maxJavaVersion: Int = presetVersionMap.first().first
+
+        for ((presetJavaVersion, presetGradleVersion) in presetVersionMap) {
+            val presetGradleVersionInts: List<Int> = parseVersion(presetGradleVersion)
+
+            for (i in presetGradleVersionInts.indices) {
+                when {
+                    i > inputGradleVersionInts.lastIndex -> {
+                        break
+                    }
+                    inputGradleVersionInts[i] > presetGradleVersionInts[i] -> {
+                        maxJavaVersion = presetJavaVersion
+                        break
+                    }
+                    inputGradleVersionInts[i] < presetGradleVersionInts[i] -> {
+                        break
+                    }
+                    i == presetGradleVersionInts.lastIndex -> {
+                        maxJavaVersion = presetJavaVersion
+                    }
+                }
+            }
+        }
+
+        return maxJavaVersion
     }
 
 }

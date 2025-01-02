@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
 import static org.autojs.autojs.util.RhinoUtils.isMainThread;
 import static org.autojs.autojs.util.StringUtils.str;
 
@@ -196,7 +197,7 @@ public class Images {
             mScreenCaptureRequester.request(contextForRequest, new ScreenCaptureRequester.Callback() {
                 @Override
                 public void onRequestResult(int resultCode, @Nullable Intent intent) {
-                    if (resultCode == -1 && intent != null) {
+                    if (resultCode == RESULT_OK && intent != null) {
                         try {
                             ScreenCapturer.Options options = new ScreenCapturer.Options(
                                     width, height, orientation, ScreenMetrics.getDeviceScreenDensity(), isAsync
@@ -417,14 +418,20 @@ public class Images {
                 mPreCaptureImage.recycleInternal();
                 mPreCaptureImage = null;
             }
+            releaseScreenCaptureRequester();
         }
     }
 
     public void stopScreenCapturerForegroundService() {
         var applicationContext = AutoJs.getInstance().getApplication().getApplicationContext();
         applicationContext.stopService(new Intent(applicationContext, ScreenCapturerForegroundService.class));
+        releaseScreenCaptureRequester();
+    }
+
+    private void releaseScreenCaptureRequester() {
         if (mScreenCaptureRequester != null) {
             mScreenCaptureRequester.unbindService();
+            mScreenCaptureRequester = null;
         }
     }
 

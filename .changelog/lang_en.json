@@ -1,5 +1,39 @@
 {
   "$data": {
+    "v6.6.1": {
+      "released_date": "2025/01/01",
+      "feature": [
+        "Pinyin module for Chinese Pinyin conversion (Refer to Project Documentation > [Chinese Pinyin](https://docs.autojs6.com/#/pinyin))",
+        "Pinyin4j module for Chinese Pinyin conversion (Refer to Project Documentation > [Chinese Pinyin](https://docs.autojs6.com/#/pinyin4j))",
+        "Methods UiObject#isSimilar and UiObjectCollection#isSimilar for determining whether a control or a collection of controls is similar",
+        "Global method \"currentComponent\", used to obtain the name information of the currently active component"
+      ],
+      "fix": [
+        "Issue where the project could not compile properly in certain environments due to a rollback to an earlier version",
+        "\"Non-primitive value\" exception that may occur when calling non-existent methods",
+        "Issue where script shortcuts could not be added properly on certain devices (tentative fix) _[`issue #221`](http://issues.autojs6.com/221)_",
+        "Incorrect parameter type restrictions for the automator.click/longClick methods _[`issue #275`](http://issues.autojs6.com/275)_",
+        "Issue where selectors did not support ConsString type parameters _[`issue #277`](http://issues.autojs6.com/277)_",
+        "Missing methods and properties on UiObjectCollection instances"
+      ],
+      "improvement": [
+        "The packaging page supports signature configuration, keystore management, and permission settings (by [luckyloogn]()) _[`pr #286`]()_",
+        "Improved accuracy in identifying the current package name and activity name of the floating window (Priority: Shizuku > Root > A11Y)",
+        "Improved accuracy in recognizing `currentPackage` and `currentActivity` (Priority: Shizuku > Root > A11Y)",
+        "Restore the ability to select text content of individual entries in the log activity window via double-click or long press _[`issue #280`](http://issues.autojs6.com/280)_",
+        "Recover as much critical information as possible for script projects when project.json is corrupted",
+        "Automatically convert Simplified Chinese to Pinyin (including multi-tone characters) for generated package name suffixes when packaging single files",
+        "Support for negative arguments in the UiSelector#findOnce and UiSelector#find methods",
+        "Enhanced adaptability of app.startActivity/startDualActivity methods",
+        "UI elements and className-related selectors now support more package name prefix omission forms (e.g., RecyclerView, Snackbar, etc.)",
+        "Synchronize with the latest upstream code of the Rhino engine and adapt it to the existing project"
+      ],
+      "dependency": [
+        "Added Pinyin4j version 2.5.0",
+        "Added Jieba Analysis version 1.0.3-SNAPSHOT (modified)",
+        "Upgrade Gradle version from 8.11.1 to 8.12"
+      ]
+    },
     "v6.6.0": {
       "released_date": "2024/12/02",
       "released_hint": "Built-in module rewrite, upgrade cautiously",
